@@ -1,5 +1,5 @@
 ## Adds a button with Tampermonkey that lets you change the highlight color of items in your collection, which is useful if you're colorblind like me.
-### Made for the website: [rust.scmm.app](rust.scmm.app)
+### Made for the website: [rust.scmm.app](https://www.rust.scmm.app)
 
 ![image](in-action.gif)
 
