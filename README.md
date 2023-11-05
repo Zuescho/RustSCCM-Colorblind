@@ -18,7 +18,7 @@ Yellow means you own it!
 ## How to install
 First download and install [Tampermonkey](https://www.tampermonkey.net/)
 
-Then import this script, there are many ways to do this one is just open Tampermonkey (the extension) and go to Utilities -> Import from URL and use this [Install Link](https://github.com/Zuescho/RustSCCM-Colorblind/raw/main/SCCM%20for%20red-green%20blinds.user.js)
+Then import this script, there are many ways to do this, one is just open Tampermonkey (the extension) and go to Utilities -> Import from URL and use this [Install Link](https://github.com/Zuescho/RustSCCM-Colorblind/raw/main/SCCM%20for%20red-green%20blinds.user.js)
 
 
 ## Problems
