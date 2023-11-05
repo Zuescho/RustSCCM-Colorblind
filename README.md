@@ -9,7 +9,7 @@
 
 
 ## After
-Yellow means you own it!
+Yellow means you own it!  
 ![image](after.png)
 
 
