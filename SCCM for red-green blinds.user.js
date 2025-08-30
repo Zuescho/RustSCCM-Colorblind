@@ -1,78 +1,120 @@
 // ==UserScript==
-// @name         SCCM for red/green blinds
-// @namespace    https://rust.scmm.app/inventory/*
-// @version      0.3
-// @description  Toggle display of items based on ownership status
-// @author       Zuescho (zuescho.de)
+// @name         SCCM Colorblind Helper (Improved)
+// @namespace    https://rust.scmm.app/
+// @version      1.1
+// @description  Improves item visibility on rust.scmm.app for users with red-green color blindness.
+// @author       Zuescho (zuescho.de) & Gemini
 // @match        https://rust.scmm.app/inventory/*
 // @grant        GM_addStyle
+// @run-at       document-end
 // ==/UserScript==
 
 (function() {
     'use strict';
 
-    // State variable to track toggle status
-    var toggleState = false;
+    // State variable to track toggle status.
+    let isColorblindMode = true;
 
-    // Create a button in a container div and add it to the body
-    var zNode = document.createElement('div');
-    zNode.innerHTML = '<button id="myButton" type="button">Toggle Item Display</button>';
-    zNode.setAttribute('id', 'myContainer');
-    document.body.appendChild(zNode);
+    // --- Create Button and Legend ---
+    const container = document.createElement('div');
+    container.id = 'colorblind-helper-container';
+    document.body.appendChild(container);
 
-    // Button click action
-    document.getElementById("myButton").addEventListener("click", () => {
-        // Toggle the state
-        toggleState = !toggleState;
-        // Apply color changes based on the toggle state
-        changeBackgroundColors(toggleState);
-    }, false);
+    const toggleButton = document.createElement('button');
+    toggleButton.id = 'colorblind-toggle-button';
+    toggleButton.textContent = 'Toggle Colors';
+    container.appendChild(toggleButton);
 
-    // Change background colors based on specific conditions
-    function changeBackgroundColors(applyChanges) {
-        const elementsToChange = document.querySelectorAll('*');
+    const legend = document.createElement('div');
+    legend.id = 'colorblind-legend';
+    legend.innerHTML = '<span>Yellow = You Own It</span>';
+    container.appendChild(legend);
+
+    // --- Functions ---
+    function changeBackgroundColors() {
+        if (!isColorblindMode) return;
+
+        const elementsToChange = document.querySelectorAll('*[style*="background-color"]');
         elementsToChange.forEach(el => {
-            const bgColor = getComputedStyle(el).backgroundColor;
-            // Toggle color changes
-            if (applyChanges) {
-                if (bgColor === 'rgba(183, 28, 28, 0.267)') {
-                    el.style.backgroundColor = 'white';
-                } else if (bgColor === 'rgba(27, 94, 32, 0.267)') {
-                    el.style.backgroundColor = 'yellow';
-                }
-            } else {
-                // Revert to original colors
-                if (bgColor === 'white' || bgColor === 'yellow') {
-                    el.style.backgroundColor = '';
-                }
+            const bgColor = el.style.backgroundColor;
+            if (bgColor === 'rgba(183, 28, 28, 0.267)') {
+                el.style.backgroundColor = 'white';
+            } else if (bgColor === 'rgba(27, 94, 32, 0.267)') {
+                el.style.backgroundColor = 'yellow';
             }
         });
     }
 
-    // Observe DOM changes and apply background color changes if the toggle is active
-    const observer = new MutationObserver(() => {
-        if (toggleState) {
-            changeBackgroundColors(true);
+    function revertBackgroundColors() {
+        const elementsToChange = document.querySelectorAll('*[style*="background-color"]');
+        elementsToChange.forEach(el => {
+            const bgColor = el.style.backgroundColor;
+            if (bgColor === 'white') {
+                el.style.backgroundColor = 'rgba(183, 28, 28, 0.267)';
+            } else if (bgColor === 'yellow') {
+                el.style.backgroundColor = 'rgba(27, 94, 32, 0.267)';
+            }
+        });
+    }
+
+    // --- Mutation Observer ---
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length) {
+                changeBackgroundColors();
+            }
+        });
+    });
+
+    function startObserver() {
+        observer.observe(document.body, { childList: true, subtree: true });
+        changeBackgroundColors(); // Initial run
+    }
+
+    function stopObserver() {
+        observer.disconnect();
+        revertBackgroundColors();
+    }
+
+
+    // --- Event Listeners ---
+    toggleButton.addEventListener('click', () => {
+        isColorblindMode = !isColorblindMode;
+        if (isColorblindMode) {
+            startObserver();
+            legend.style.display = 'block';
+        } else {
+            stopObserver();
+            legend.style.display = 'none';
         }
     });
-    observer.observe(document, { childList: true, subtree: true });
 
-    // Add custom styles
+    // --- Styles ---
     GM_addStyle(`
-        #myContainer {
+        #colorblind-helper-container {
             position: fixed;
             top: 50px;
             right: 20px;
-            font-size: 20px;
-            background: orange;
+            z-index: 9999;
+            background-color: orange;
             border: 3px outset black;
-            margin: 5px;
-            opacity: 0.9;
-            z-index: 1100;
-            padding: 5px 20px;
+            padding: 10px;
+            text-align: center;
         }
-        #myButton {
+        #colorblind-toggle-button {
             cursor: pointer;
+            width: 100%;
+            padding: 5px;
+            margin-bottom: 5px;
+        }
+        #colorblind-legend span {
+            font-size: 14px;
+            font-weight: bold;
+            color: black;
         }
     `);
+
+    // --- Initial Run ---
+    startObserver();
+
 })();
